@@ -1,0 +1,26 @@
+{
+  "name": "y-pojo",
+  "version": "0.0.1",
+  "description": "Syncronize a YJS document to/from a plain old javascript object",
+  "main": "dist/index.js",
+  "type": "module",
+  "scripts": {
+    "build": "yarn build",
+    "prepack": "yarn build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/boourns/y-pojo.git"
+  },
+  "keywords": [
+    "yjs",
+    "crdt"
+  ],
+  "author": "Tom Burns",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/boourns/y-pojo/issues"
+  },
+  "homepage": "https://github.com/boourns/y-pojo#readme",
+  "packageManager": "yarn@3.1.1"
+}
