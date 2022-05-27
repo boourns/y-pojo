@@ -24,7 +24,6 @@ jobs:
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
         run: echo "::set-output name=dir::$(yarn config get cacheFolder)"
-        working-directory: ./public
 
       - name: Cache yarn dependencies
         uses: actions/cache@v2
@@ -37,7 +36,6 @@ jobs:
 
       - name: Install dependencies
         run: yarn install --immutable
-        working-directory: ./public
 
       - name: Build
         run: yarn build 
