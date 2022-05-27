@@ -5,7 +5,7 @@
   "main": "dist/index.js",
   "type": "module",
   "scripts": {
-    "build": "yarn build",
+    "build": "./node_modules/.bin/tsc",
     "prepack": "yarn build"
   },
   "repository": {
@@ -22,5 +22,11 @@
     "url": "https://github.com/boourns/y-pojo/issues"
   },
   "homepage": "https://github.com/boourns/y-pojo#readme",
-  "packageManager": "yarn@3.1.1"
+  "packageManager": "yarn@3.1.1",
+  "peerDependencies": {
+    "yjs": "^13.5.38"
+  },
+  "devDependencies": {
+    "typescript": "^4.0.5"
+  }
 }
