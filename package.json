@@ -7,7 +7,7 @@
   "scripts": {
     "build": "./node_modules/.bin/tsc",
     "prepack": "yarn build",
-    "test": "./node_modules/.bin/mocha"
+    "test": "yarn build && ./node_modules/.bin/mocha"
   },
   "repository": {
     "type": "git",

@@ -1,8 +1,8 @@
 import assert, { deepStrictEqual } from "assert"
 import * as Y from "yjs"
-import {yjsdiff} from "../dist/y-pojo.js"
+import {deepEquals, syncronize} from "../dist/y-pojo.js"
 
-describe("yjsdiff", () => {
+describe("syncronize", () => {
     
     it("Applies basic additions on Y.Map", () => {
         const target = {
@@ -12,7 +12,7 @@ describe("yjsdiff", () => {
         const doc = new Y.Doc()
         const root = doc.getMap("root")
 
-        yjsdiff(root, target)
+        syncronize(root, target)
         
         assert(root.get("name") == "two")
     })
@@ -27,7 +27,7 @@ describe("yjsdiff", () => {
         const doc = new Y.Doc()
         const root = doc.getMap("root")
 
-        yjsdiff(root, target)
+        syncronize(root, target)
         
         // @ts-ignore
         assert(root.get("inner").get("foo") == "bar")
@@ -47,8 +47,8 @@ describe("yjsdiff", () => {
         const doc = new Y.Doc()
         const root = doc.getMap("root")
 
-        yjsdiff(root, first)
-        yjsdiff(root, target)
+        syncronize(root, first)
+        syncronize(root, target)
         
         // @ts-ignore
         assert(!root.has("inner"))
@@ -66,10 +66,10 @@ describe("yjsdiff", () => {
         const doc = new Y.Doc()
         const root = doc.getMap("root")
 
-        yjsdiff(root, target)
+        syncronize(root, target)
         let sv1 = Y.encodeStateVector(doc)
 
-        yjsdiff(root, target)
+        syncronize(root, target)
         let sv2 = Y.encodeStateVector(doc)
 
         deepStrictEqual(sv1, sv2)
@@ -84,11 +84,11 @@ describe("yjsdiff", () => {
         const doc = new Y.Doc()
         const root = doc.getMap("root")
 
-        yjsdiff(root, {
+        syncronize(root, {
             val: ["a", "b", "c"]
         })
 
-        yjsdiff(root, {
+        syncronize(root, {
             val: ["b", "c"]
         })
 
@@ -104,11 +104,11 @@ describe("yjsdiff", () => {
         const doc = new Y.Doc()
         const root = doc.getMap("root")
 
-        yjsdiff(root, {
+        syncronize(root, {
             val: ["a", "b", "c"]
         })
 
-        yjsdiff(root, {
+        syncronize(root, {
             val: ["d", "a", "b", "c"]
         })
 
@@ -124,11 +124,11 @@ describe("yjsdiff", () => {
         const doc = new Y.Doc()
         const root = doc.getMap("root")
 
-        yjsdiff(root, {
+        syncronize(root, {
             val: ["a", "b", "c"]
         })
 
-        yjsdiff(root, {
+        syncronize(root, {
             val: ["a", "x", "c"]
         })
 
@@ -144,11 +144,11 @@ describe("yjsdiff", () => {
         const doc = new Y.Doc()
         const root = doc.getMap("root")
 
-        yjsdiff(root, {
+        syncronize(root, {
             val: ["a", "b", "c"]
         })
 
-        yjsdiff(root, {
+        syncronize(root, {
             val: ["a", "b", "x"]
         })
 
@@ -164,11 +164,11 @@ describe("yjsdiff", () => {
         const doc = new Y.Doc()
         const root = doc.getMap("root")
 
-        yjsdiff(root, {
+        syncronize(root, {
             val: ["a", "b", "c"]
         })
 
-        yjsdiff(root, {
+        syncronize(root, {
             val: ["a", "b", "c", "c"]
         })
 
@@ -184,13 +184,107 @@ describe("yjsdiff", () => {
         const doc = new Y.Doc()
         const root = doc.getMap("root")
 
-        yjsdiff(root, target)
+        syncronize(root, target)
         let sv1 = Y.encodeStateVector(doc)
 
-        yjsdiff(root, target)
+        syncronize(root, target)
         let sv2 = Y.encodeStateVector(doc)
 
         deepStrictEqual(sv1, sv2)
 
+    })
+})
+
+describe("deepEquals", () => {
+    it("returns true when Y.Map matches object", () => {
+        const target = {
+            "foo": "bar",
+            "a": "b",
+        }
+
+        const doc = new Y.Doc()
+        const root = doc.getMap("root")
+        root.set("foo", "bar")
+        root.set("a", "b")
+
+        assert(deepEquals(root, target))
+    })
+
+    it("returns false when Y.Map does not match object", () => {
+        const target = {
+            "foo": "zoo",
+            "a": "b",
+        }
+
+        const doc = new Y.Doc()
+        const root = doc.getMap("root")
+        root.set("foo", "bar")
+        root.set("a", "b")
+
+        assert(!deepEquals(root, target))
+    })
+
+    it("returns false when Y.Map missing key in target", () => {
+        const target = {
+            "foo": "bar",
+            "a": "b",
+        }
+
+        const doc = new Y.Doc()
+        const root = doc.getMap("root")
+        root.set("foo", "bar")
+
+        assert(!deepEquals(root, target))
+    })
+
+    it("returns false when target missing key in Y.Map", () => {
+        const target = {
+            "foo": "bar",
+        }
+
+        const doc = new Y.Doc()
+        const root = doc.getMap("root")
+        root.set("foo", "bar")
+        root.set("a", "b")
+
+        assert(!deepEquals(root, target))
+    })
+
+    it("returns false when target undefined", () => {
+        const doc = new Y.Doc()
+        const root = doc.getMap("root")
+        root.set("foo", "bar")
+
+        assert(!deepEquals(root, undefined))
+    })
+
+    it("returns false when Y.Map undefined", () => {
+        assert(!deepEquals(undefined, {"foo": "bar"}))
+    })
+
+    it("returns true when Y.Array matches input array", () => {
+        const target = ["a", "b", {"foo": "bar"}]
+
+        const doc = new Y.Doc()
+        const root = doc.getArray("root")
+
+        const m = new Y.Map()
+        m.set("foo", "bar")
+        root.insert(0, ["a", "b", m])
+
+        assert(deepEquals(root, target))
+    })
+
+    it("returns false when Y.Array does not match input array", () => {
+        const target = ["a", {"foo": "bar"}]
+
+        const doc = new Y.Doc()
+        const root = doc.getArray("root")
+
+        const m = new Y.Map()
+        m.set("foo", "bar")
+        root.insert(0, ["a", "b", m])
+
+        assert(!deepEquals(root, target))
     })
 })

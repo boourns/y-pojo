@@ -1,6 +1,9 @@
 import * as Y from "yjs";
 
-function deepEquals(managed: any, target: any): boolean {
+type managedType = Y.Map<any> | Y.Array<any> | string | number
+type supportedType = object | string | number
+
+export function deepEquals(managed: managedType, target: supportedType | supportedType[]): boolean {
     try {
         var managedType = managed.constructor.name
     } catch (e) {
@@ -15,24 +18,25 @@ function deepEquals(managed: any, target: any): boolean {
 
     if (managedType == "YArray" && targetType == "Array") {
         const targetArray = (target as Array<any>)
-        return managed.length == target.length && targetArray.every((t, i) => deepEquals(managed.get(i), targetArray[i]))
+        const managedArray = (managed as Y.Array<any>)
+        return managedArray.length == targetArray.length && targetArray.every((t, i) => deepEquals(managedArray.get(i), targetArray[i]))
     } else if (managedType == "YMap" && targetType == "Object") {
         const targetMap = (target as Record<string, any>)
+        const managedMap = (managed as Y.Map<any>)
         let targetKeyCount = 0
         for (let targetKey in targetMap) {
             targetKeyCount++
-            if (!deepEquals(managed.get(targetKey), targetMap[targetKey])) {
+            if (!deepEquals(managedMap.get(targetKey), targetMap[targetKey])) {
                 return false
             }
         }
-        return targetKeyCount == managed.length
+        return targetKeyCount == Array.from(managedMap.keys()).length
     } else {
         return target === managed
     }
-
 }
 
-export function yjsdiff(
+export function syncronize(
 	managedObj: Y.Map<any> | Y.Array<any>,
 	targetObj: Record<string, any> | any[],
 	) {
@@ -113,7 +117,7 @@ export function yjsdiff(
                         managedMap.delete(key)
                 } else if (managedType == "YMap" || managedType == "YArray") {
                     // they match in types, so go deeper
-                    yjsdiff(managedChild, targetChild)
+                    syncronize(managedChild, targetChild)
                 } else {
                     // they are not complex types so just assign it into the map
                     if (managedChild !== targetChild) {
@@ -135,12 +139,12 @@ export function yjsdiff(
                         const arr = new Y.Array()
 
                         managedMap.set(key, arr)
-                        yjsdiff(arr,child)
+                        syncronize(arr,child)
                     } else if (childType == "Object") {
                         const map = new Y.Map()
 
                         managedMap.set(key, map)
-                        yjsdiff(map, child)
+                        syncronize(map, child)
                     } else {
                         managedMap.set(key, child)
                     }
