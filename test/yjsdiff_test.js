@@ -1,6 +1,6 @@
 import assert, { deepStrictEqual } from "assert"
 import * as Y from "yjs"
-import yjsdiff from "../../src/session/plugin/yjsdiff"
+import {yjsdiff} from "../dist/y-pojo.js"
 
 describe("yjsdiff", () => {
     
@@ -92,7 +92,7 @@ describe("yjsdiff", () => {
             val: ["b", "c"]
         })
 
-        let arr = root.get("val") as Y.Array<string>
+        let arr = root.get("val")
         assert(arr.length == 2 && arr.get(0) == "b" && arr.get(1) == "c")
     })
 
@@ -112,7 +112,7 @@ describe("yjsdiff", () => {
             val: ["d", "a", "b", "c"]
         })
 
-        let arr = root.get("val") as Y.Array<string>
+        let arr = root.get("val")
         assert(arr.length == 4 && arr.get(0) == "d" && arr.get(1) == "a" && arr.get(2) == "b" && arr.get(3) == "c")
     })
 
@@ -132,7 +132,7 @@ describe("yjsdiff", () => {
             val: ["a", "x", "c"]
         })
 
-        let arr = root.get("val") as Y.Array<string>
+        let arr = root.get("val")
         assert(arr.length == 3 && arr.get(0) == "a" && arr.get(1) == "x" && arr.get(2) == "c")
     })
 
@@ -152,7 +152,7 @@ describe("yjsdiff", () => {
             val: ["a", "b", "x"]
         })
 
-        let arr = root.get("val") as Y.Array<string>
+        let arr = root.get("val")
         assert(arr.length == 3 && arr.get(0) == "a" && arr.get(1) == "b" && arr.get(2) == "x")
     })
 
@@ -172,7 +172,7 @@ describe("yjsdiff", () => {
             val: ["a", "b", "c", "c"]
         })
 
-        let arr = root.get("val") as Y.Array<string>
+        let arr = root.get("val")
         assert(arr.length == 4 && arr.get(0) == "a" && arr.get(1) == "b" && arr.get(2) == "c" && arr.get(3) == "c")
     })
 

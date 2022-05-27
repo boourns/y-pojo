@@ -6,7 +6,8 @@
   "type": "module",
   "scripts": {
     "build": "./node_modules/.bin/tsc",
-    "prepack": "yarn build"
+    "prepack": "yarn build",
+    "test": "./node_modules/.bin/mocha"
   },
   "repository": {
     "type": "git",
@@ -27,6 +28,8 @@
     "yjs": "^13.5.38"
   },
   "devDependencies": {
-    "typescript": "^4.0.5"
+    "mocha": "^10.0.0",
+    "typescript": "^4.0.5",
+    "yjs": "^13.5.38"
   }
 }
