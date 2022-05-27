@@ -19,10 +19,13 @@ export function deepEquals(managed: managedType, target: supportedType | support
     if (managedType == "YArray" && targetType == "Array") {
         const targetArray = (target as Array<any>)
         const managedArray = (managed as Y.Array<any>)
-        return managedArray.length == targetArray.length && targetArray.every((t, i) => deepEquals(managedArray.get(i), targetArray[i]))
+
+        const result = managedArray.length == targetArray.length && targetArray.every((t, i) => deepEquals(managedArray.get(i), targetArray[i]))
+        return result
     } else if (managedType == "YMap" && targetType == "Object") {
         const targetMap = (target as Record<string, any>)
         const managedMap = (managed as Y.Map<any>)
+
         let targetKeyCount = 0
         for (let targetKey in targetMap) {
             targetKeyCount++
@@ -53,10 +56,6 @@ export function syncronize(
             const targetArray = targetObj as any[]
             const outOfRange = Symbol()
 
-            // iterate through existing array, and find the new array position for the existing elements.
-            let targetPositions: Map<number, number> = new Map()
-            let sourcePositions: Map<number, number> = new Map()
-
             let cursor = 0
             for (let i = 0; i < targetArray.length; i++) {
                 let match = false
@@ -70,13 +69,12 @@ export function syncronize(
                         for (let x = j-1; x >= cursor; x--) {
                             managedArray.delete(x)
                         }
-
                         cursor = j+1
                         match = true
                     }
                 }
                 if (!match) {
-                    managedArray.insert(cursor, [targetValue])
+                    managedArray.insert(cursor, [syncChild(targetValue)])
                     cursor++
                 }
             }
@@ -128,30 +126,35 @@ export function syncronize(
 
             for (const key in targetMap) {
                 if (!managedMap.has(key)) {
-                    const child = targetMap[key]
-                    try {
-                        var childType = child.constructor.name
-                    } catch (e) {
-                        childType = "undefined"
-                    }
+                    const child = syncChild(targetMap[key])
 
-                    if (childType == "Array") {
-                        const arr = new Y.Array()
-
-                        managedMap.set(key, arr)
-                        syncronize(arr,child)
-                    } else if (childType == "Object") {
-                        const map = new Y.Map()
-
-                        managedMap.set(key, map)
-                        syncronize(map, child)
-                    } else {
-                        managedMap.set(key, child)
-                    }
+                    managedMap.set(key, child)
                 }
             }
             break
         default:
             throw new Error(`can only iterate over Y.Map and Y.Array, got ${managedObj}`)
+    }
+}
+
+function syncChild(child: any): any {
+    try {
+        var childType = child.constructor.name
+    } catch (e) {
+        childType = "undefined"
+    }
+
+    if (childType == "Array") {
+        const arr = new Y.Array()
+
+        syncronize(arr,child)
+        return arr
+    } else if (childType == "Object") {
+        const map = new Y.Map()
+
+        syncronize(map, child)
+        return map
+    } else {
+        return child
     }
 }

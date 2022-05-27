@@ -76,7 +76,7 @@ describe("syncronize", () => {
 
     })
 
-    it ("detects added items to Y.Array",  () => {
+    it ("syncronizes deleted items to Y.Array",  () => {
         const target = {
             val: ["a", "b", "c"]
         }
@@ -96,7 +96,7 @@ describe("syncronize", () => {
         assert(arr.length == 2 && arr.get(0) == "b" && arr.get(1) == "c")
     })
 
-    it ("detects deleted items to Y.Array",  () => {
+    it ("syncronizes added items to Y.Array",  () => {
         const target = {
             val: ["a", "b", "c"]
         }
@@ -174,6 +174,61 @@ describe("syncronize", () => {
 
         let arr = root.get("val")
         assert(arr.length == 4 && arr.get(0) == "a" && arr.get(1) == "b" && arr.get(2) == "c" && arr.get(3) == "c")
+    })
+
+    it ("detects removed complex items at end of Y.Array",  () => {
+        const target = {
+            val: ["a", "b", "c"]
+        }
+
+        const doc = new Y.Doc()
+        const root = doc.getMap("root")
+
+        syncronize(root, {
+            clips: [
+                { length: 96, notes: [], id: "fuxgvenru" },
+                { length: 96, notes: [], id: "znrwtur" },
+                { length: 96, notes: [], id: "znrwtur" }
+            ]
+        })
+
+        syncronize(root, {
+            clips: [
+                { length: 96, notes: [], id: "fuxgvenru" },
+                { length: 96, notes: [], id: "znrwtur" },
+            ]
+        })
+
+        let arr = root.get("clips")
+        assert(arr.length == 2)
+    })
+
+    it ("does not append extra copies of complex items at end of Y.Array",  () => {
+        const target = {
+            val: ["a", "b", "c"]
+        }
+
+        const doc = new Y.Doc()
+        const root = doc.getMap("root")
+
+        syncronize(root, {
+            clips: [
+                { length: 96, notes: [], id: "fuxgvenru" },
+                { length: 96, notes: [], id: "znrwtur" },
+            ]
+        })
+        let arr = root.get("clips")
+        assert(arr.length == 2)
+
+        syncronize(root, {
+            clips: [
+                { length: 96, notes: [], id: "fuxgvenru" },
+                { length: 96, notes: [], id: "znrwtur" },
+            ]
+        })
+
+        arr = root.get("clips")
+        assert(arr.length == 2)
     })
 
     it("Does not change YJS doc when no changes in target", () => {
