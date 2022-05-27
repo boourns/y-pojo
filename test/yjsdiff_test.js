@@ -12,9 +12,10 @@ describe("syncronize", () => {
         const doc = new Y.Doc()
         const root = doc.getMap("root")
 
-        syncronize(root, target)
+        const changed = syncronize(root, target)
         
         assert(root.get("name") == "two")
+        assert(changed)
     })
 
     it("Applies nested patches on Y.Map", () => {
@@ -27,8 +28,9 @@ describe("syncronize", () => {
         const doc = new Y.Doc()
         const root = doc.getMap("root")
 
-        syncronize(root, target)
-        
+        const changed = syncronize(root, target)
+        assert(changed)
+
         // @ts-ignore
         assert(root.get("inner").get("foo") == "bar")
     })
@@ -47,9 +49,12 @@ describe("syncronize", () => {
         const doc = new Y.Doc()
         const root = doc.getMap("root")
 
-        syncronize(root, first)
-        syncronize(root, target)
-        
+        let changed = syncronize(root, first)
+        assert(changed)
+
+        changed = syncronize(root, target)
+        assert(changed)
+
         // @ts-ignore
         assert(!root.has("inner"))
         assert(root.has("second"))
@@ -66,11 +71,13 @@ describe("syncronize", () => {
         const doc = new Y.Doc()
         const root = doc.getMap("root")
 
-        syncronize(root, target)
+        let changed = syncronize(root, target)
         let sv1 = Y.encodeStateVector(doc)
+        assert(changed)
 
-        syncronize(root, target)
+        changed = syncronize(root, target)
         let sv2 = Y.encodeStateVector(doc)
+        assert(!changed)
 
         deepStrictEqual(sv1, sv2)
 
@@ -84,13 +91,15 @@ describe("syncronize", () => {
         const doc = new Y.Doc()
         const root = doc.getMap("root")
 
-        syncronize(root, {
+        let changed = syncronize(root, {
             val: ["a", "b", "c"]
         })
+        assert(changed)
 
-        syncronize(root, {
+        changed = syncronize(root, {
             val: ["b", "c"]
         })
+        assert(changed)
 
         let arr = root.get("val")
         assert(arr.length == 2 && arr.get(0) == "b" && arr.get(1) == "c")
@@ -104,13 +113,15 @@ describe("syncronize", () => {
         const doc = new Y.Doc()
         const root = doc.getMap("root")
 
-        syncronize(root, {
+        let changed = syncronize(root, {
             val: ["a", "b", "c"]
         })
+        assert(changed)
 
-        syncronize(root, {
+        changed = syncronize(root, {
             val: ["d", "a", "b", "c"]
         })
+        assert(changed)
 
         let arr = root.get("val")
         assert(arr.length == 4 && arr.get(0) == "d" && arr.get(1) == "a" && arr.get(2) == "b" && arr.get(3) == "c")
@@ -124,13 +135,15 @@ describe("syncronize", () => {
         const doc = new Y.Doc()
         const root = doc.getMap("root")
 
-        syncronize(root, {
+        let changed = syncronize(root, {
             val: ["a", "b", "c"]
         })
+        assert(changed)
 
-        syncronize(root, {
+        changed = syncronize(root, {
             val: ["a", "x", "c"]
         })
+        assert(changed)
 
         let arr = root.get("val")
         assert(arr.length == 3 && arr.get(0) == "a" && arr.get(1) == "x" && arr.get(2) == "c")
@@ -144,13 +157,15 @@ describe("syncronize", () => {
         const doc = new Y.Doc()
         const root = doc.getMap("root")
 
-        syncronize(root, {
+        let changed = syncronize(root, {
             val: ["a", "b", "c"]
         })
+        assert(changed)
 
-        syncronize(root, {
+        changed = syncronize(root, {
             val: ["a", "b", "x"]
         })
+        assert(changed)
 
         let arr = root.get("val")
         assert(arr.length == 3 && arr.get(0) == "a" && arr.get(1) == "b" && arr.get(2) == "x")
@@ -164,13 +179,15 @@ describe("syncronize", () => {
         const doc = new Y.Doc()
         const root = doc.getMap("root")
 
-        syncronize(root, {
+        let changed = syncronize(root, {
             val: ["a", "b", "c"]
         })
+        assert(changed)
 
-        syncronize(root, {
+        changed = syncronize(root, {
             val: ["a", "b", "c", "c"]
         })
+        assert(changed)
 
         let arr = root.get("val")
         assert(arr.length == 4 && arr.get(0) == "a" && arr.get(1) == "b" && arr.get(2) == "c" && arr.get(3) == "c")
@@ -184,20 +201,22 @@ describe("syncronize", () => {
         const doc = new Y.Doc()
         const root = doc.getMap("root")
 
-        syncronize(root, {
+        let changed = syncronize(root, {
             clips: [
                 { length: 96, notes: [], id: "fuxgvenru" },
                 { length: 96, notes: [], id: "znrwtur" },
                 { length: 96, notes: [], id: "znrwtur" }
             ]
         })
+        assert(changed)
 
-        syncronize(root, {
+        changed = syncronize(root, {
             clips: [
                 { length: 96, notes: [], id: "fuxgvenru" },
                 { length: 96, notes: [], id: "znrwtur" },
             ]
         })
+        assert(changed)
 
         let arr = root.get("clips")
         assert(arr.length == 2)
@@ -211,7 +230,7 @@ describe("syncronize", () => {
         const doc = new Y.Doc()
         const root = doc.getMap("root")
 
-        syncronize(root, {
+        let changed = syncronize(root, {
             clips: [
                 { length: 96, notes: [], id: "fuxgvenru" },
                 { length: 96, notes: [], id: "znrwtur" },
@@ -219,13 +238,15 @@ describe("syncronize", () => {
         })
         let arr = root.get("clips")
         assert(arr.length == 2)
+        assert(changed)
 
-        syncronize(root, {
+        changed = syncronize(root, {
             clips: [
                 { length: 96, notes: [], id: "fuxgvenru" },
                 { length: 96, notes: [], id: "znrwtur" },
             ]
         })
+        assert(!changed)
 
         arr = root.get("clips")
         assert(arr.length == 2)
@@ -239,14 +260,55 @@ describe("syncronize", () => {
         const doc = new Y.Doc()
         const root = doc.getMap("root")
 
-        syncronize(root, target)
+        let changed = syncronize(root, target)
         let sv1 = Y.encodeStateVector(doc)
+        assert(changed)
 
-        syncronize(root, target)
+        changed = syncronize(root, target)
         let sv2 = Y.encodeStateVector(doc)
+        assert(!changed)
 
         deepStrictEqual(sv1, sv2)
 
+    })
+
+    it("Does not recreate complex nested object when a child has changed", () => {
+        const target = {
+            inner: [
+                {
+                    "name": "tom",
+                    "count": 52
+                },
+                {
+                    "name": "jerry",
+                    "count": 43
+                }
+            ]
+        }
+
+        const doc = new Y.Doc()
+        const root = doc.getMap("root")
+
+        let changed = syncronize(root, target)
+        assert(changed)
+
+        let el = root.get("inner").get(0)
+
+        changed = syncronize(root, {
+            inner: [
+                {
+                    "name": "tom",
+                    "count": 590
+                },
+                {
+                    "name": "jerry",
+                    "count": 43
+                }
+            ]
+        })
+        assert(changed)
+
+        assert(el.get("count") == 590)
     })
 })
 

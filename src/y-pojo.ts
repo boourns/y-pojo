@@ -42,7 +42,9 @@ export function deepEquals(managed: managedType, target: supportedType | support
 export function syncronize(
 	managedObj: Y.Map<any> | Y.Array<any>,
 	targetObj: Record<string, any> | any[],
-	) {
+	): boolean {
+
+    let changed = false
 
     switch (managedObj.constructor.name) {
         case "YArray":
@@ -67,6 +69,7 @@ export function syncronize(
 
                     if (deepEquals(managedValue, targetValue)) {
                         for (let x = j-1; x >= cursor; x--) {
+                            changed = true
                             managedArray.delete(x)
                         }
                         cursor = j+1
@@ -74,11 +77,29 @@ export function syncronize(
                     }
                 }
                 if (!match) {
-                    managedArray.insert(cursor, [syncChild(targetValue)])
+                    try {
+                        var childType = targetValue.constructor.name
+                    } catch (e) {
+                        childType = "undefined"
+                    }
+                    const managedChild = (cursor < managedArray.length) ? managedArray.get(cursor) : "undefined"
+                    const managedType = (managedChild !== "undefined") ? managedChild.constructor.name : "undefined"
+
+                    // but if they're compatible types we should go deeper
+                    // there was no exact match in the list, so assume the immediately next object should be the match
+                    if ((managedType == "YMap" && childType == "Object") ||
+                     (managedType == "YArray" && childType == "Array")) {
+                        syncronize(managedChild, targetValue)
+                     } else {
+                        managedArray.insert(cursor, [syncChild(targetValue)])
+                    }
+
                     cursor++
+                    changed = true
                 }
             }
             for (let i = targetArray.length; i < managedArray.length; i++) {
+                changed = true
                 managedArray.delete(i)
             }
 
@@ -95,6 +116,7 @@ export function syncronize(
                 if (!(key in targetObj)) {
                     // item's been removed from target
                     managedMap.delete(key)
+                    changed = true
                     continue
                 }
                 const managedChild = managedMap.get(key)
@@ -113,13 +135,15 @@ export function syncronize(
                     (!["YMap", "YArray"].includes(managedType) && managedType !== childType)) {
                         // this item has fundamentally changed, delete the existing record and recreate it in second pass
                         managedMap.delete(key)
+                        changed = true
                 } else if (managedType == "YMap" || managedType == "YArray") {
                     // they match in types, so go deeper
-                    syncronize(managedChild, targetChild)
+                    changed ||= syncronize(managedChild, targetChild)
                 } else {
                     // they are not complex types so just assign it into the map
                     if (managedChild !== targetChild) {
                         managedMap.set(key, targetChild)
+                        changed = true
                     }
                 }
             }
@@ -129,12 +153,14 @@ export function syncronize(
                     const child = syncChild(targetMap[key])
 
                     managedMap.set(key, child)
+                    changed = true
                 }
             }
             break
         default:
             throw new Error(`can only iterate over Y.Map and Y.Array, got ${managedObj}`)
     }
+    return changed
 }
 
 function syncChild(child: any): any {
