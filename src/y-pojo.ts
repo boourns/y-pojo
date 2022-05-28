@@ -4,12 +4,8 @@ type managedType = Y.Map<any> | Y.Array<any> | string | number
 type supportedType = object | string | number
 
 export function deepEquals(managed: managedType, target: supportedType | supportedType[]): boolean {
-    try {
-        var managedType = managed.constructor.name
-    } catch (e) {
-        managedType = "undefined"
-    }
-
+    const managedType = detectManagedType(managed)
+   
     try {
         var targetType = target.constructor.name
     } catch (e) {
@@ -46,7 +42,9 @@ export function syncronize(
 
     let changed = false
 
-    switch (managedObj.constructor.name) {
+    const managedType = detectManagedType(managedObj)
+
+    switch (managedType) {
         case "YArray":
             let defer: (() => void)[] = []
 
@@ -83,7 +81,7 @@ export function syncronize(
                         childType = "undefined"
                     }
                     const managedChild = (cursor < managedArray.length) ? managedArray.get(cursor) : "undefined"
-                    const managedType = (managedChild !== "undefined") ? managedChild.constructor.name : "undefined"
+                    const managedType = detectManagedType(managedChild)
 
                     // but if they're compatible types we should go deeper
                     // there was no exact match in the list, so assume the immediately next object should be the match
@@ -122,7 +120,7 @@ export function syncronize(
                 const managedChild = managedMap.get(key)
                 const targetChild = targetMap[key]
 
-                const managedType = (managedChild !== "undefined") ? managedChild.constructor.name : "undefined"
+                const managedType = detectManagedType(managedChild)
 
                 try {
                     var childType = targetChild.constructor.name
@@ -182,5 +180,19 @@ function syncChild(child: any): any {
         return map
     } else {
         return child
+    }
+}
+
+function detectManagedType(managed: any): string {
+    try {
+        if (managed.length !== undefined && managed.get !== undefined) {
+            return "YArray"
+        } else if (managed.keys !== undefined && managed.get !== undefined) {
+            return "YMap"
+        } else {
+            return managed.constructor.name
+        }
+    } catch (e) {
+        return "undefined"
     }
 }

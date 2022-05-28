@@ -310,6 +310,28 @@ describe("syncronize", () => {
 
         assert(el.get("count") == 590)
     })
+
+    it("Works even when managed class name changes", () => {
+        class Blah extends Y.Map {}
+
+        const target = {
+            inner: [1, 2, 3],
+            second: 123
+        }
+        const doc = new Y.Doc()
+
+        const root = doc.get("root", Blah)
+
+        let changed = syncronize(root, target)
+        let sv1 = Y.encodeStateVector(doc)
+        assert(changed)
+
+        changed = syncronize(root, target)
+        let sv2 = Y.encodeStateVector(doc)
+        assert(!changed)
+
+        deepStrictEqual(sv1, sv2)
+    })
 })
 
 describe("deepEquals", () => {
