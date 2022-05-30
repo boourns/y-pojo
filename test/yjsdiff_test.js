@@ -1,4 +1,4 @@
-import assert, { deepStrictEqual } from "assert"
+import assert, { deepStrictEqual, strictEqual } from "assert"
 import * as Y from "yjs"
 import {deepEquals, syncronize} from "../dist/y-pojo.js"
 
@@ -331,6 +331,23 @@ describe("syncronize", () => {
         assert(!changed)
 
         deepStrictEqual(sv1, sv2)
+    })
+
+    it("does not remove last item from long complex arrays", () => {
+        const start =  {"clips":[{"length":96,"notes":[],"id":"cacsslnhq"},{"length":96,"notes":[{"tick":6,"number":58,"duration":6,"velocity":100},{"tick":12,"number":58,"duration":6,"velocity":100},{"tick":18,"number":58,"duration":6,"velocity":100},{"tick":24,"number":58,"duration":6,"velocity":100},{"tick":30,"number":58,"duration":6,"velocity":100},{"tick":36,"number":59,"duration":6,"velocity":100},{"tick":42,"number":55,"duration":6,"velocity":100},{"tick":42,"number":58,"duration":6,"velocity":100},{"tick":48,"number":53,"duration":6,"velocity":100},{"tick":48,"number":59,"duration":6,"velocity":100}],"id":"poutonrzg"}]}
+        const target = {"clips":[{"length":96,"notes":[],"id":"cacsslnhq"},{"length":96,"notes":[{"tick":12,"number":58,"duration":6,"velocity":100},{"tick":18,"number":58,"duration":6,"velocity":100},{"tick":24,"number":58,"duration":6,"velocity":100},{"tick":30,"number":58,"duration":6,"velocity":100},{"tick":36,"number":59,"duration":6,"velocity":100},{"tick":42,"number":55,"duration":6,"velocity":100},{"tick":42,"number":58,"duration":6,"velocity":100},{"tick":48,"number":53,"duration":6,"velocity":100},{"tick":48,"number":59,"duration":6,"velocity":100}],"id":"poutonrzg"}]}
+
+        const doc = new Y.Doc()
+        const root = doc.getMap("root")
+
+        syncronize(root, start)
+        deepStrictEqual(root.toJSON(), start)
+
+        syncronize(root, target)
+
+        const result = root.toJSON()
+
+        deepStrictEqual(result, target)
     })
 })
 

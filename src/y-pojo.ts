@@ -46,8 +46,6 @@ export function syncronize(
 
     switch (managedType) {
         case "YArray":
-            let defer: (() => void)[] = []
-
             if (!Array.isArray(targetObj)) {
                 throw new Error(`Sync failed, ${targetObj} was not array`)
             }
@@ -65,16 +63,17 @@ export function syncronize(
                     const managedValue = (j < managedArray.length) ? managedArray.get(j) : outOfRange
                     const targetValue = (i < targetArray.length) ? targetArray[i] : outOfRange
 
-                    if (deepEquals(managedValue, targetValue)) {
+                    if (deepEquals(managedValue, targetValue)) {                        
                         for (let x = j-1; x >= cursor; x--) {
                             changed = true
                             managedArray.delete(x)
                         }
-                        cursor = j+1
+                        const deletedCount = j - cursor
+                        cursor = j+1 - deletedCount
                         match = true
                     }
                 }
-                if (!match) {
+                if (!match) {  
                     try {
                         var childType = targetValue.constructor.name
                     } catch (e) {
