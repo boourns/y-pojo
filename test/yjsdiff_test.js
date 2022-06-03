@@ -1,4 +1,4 @@
-import assert, { deepStrictEqual, strictEqual } from "assert"
+import assert, { deepStrictEqual } from "assert"
 import * as Y from "yjs"
 import {deepEquals, syncronize} from "../dist/y-pojo.js"
 
@@ -349,6 +349,21 @@ describe("syncronize", () => {
 
         deepStrictEqual(result, target)
     })
+
+    it("clears a long array properly", () => {
+        const start = {"arr": ["a", "b", "c", "d", "e", "f", "g", "h", "i"]}//{"clips":{"default":{"length":96,"notes":[],"id":"default"},"mbnzjdg":{"length":96,"notes":[{"tick":0,"number":57,"duration":12,"velocity":100},{"tick":24,"number":57,"duration":6,"velocity":100},{"tick":36,"number":59,"duration":6,"velocity":100},{"tick":42,"number":57,"duration":18,"velocity":100},{"tick":66,"number":57,"duration":6,"velocity":100},{"tick":84,"number":57,"duration":12,"velocity":100}],"id":"mbnzjdg"}}}
+        const target = {"arr": []}
+
+        const doc = new Y.Doc()
+        const root = doc.getMap("root")
+
+        syncronize(root, start)
+        deepStrictEqual(root.toJSON(), start)
+
+        syncronize(root, target)
+        deepStrictEqual(root.toJSON(), target)
+    })
+    
 })
 
 describe("deepEquals", () => {

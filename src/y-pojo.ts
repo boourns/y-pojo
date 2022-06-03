@@ -73,7 +73,7 @@ export function syncronize(
                         match = true
                     }
                 }
-                if (!match) {  
+                if (!match) {
                     try {
                         var childType = targetValue.constructor.name
                     } catch (e) {
@@ -95,9 +95,9 @@ export function syncronize(
                     changed = true
                 }
             }
-            for (let i = targetArray.length; i < managedArray.length; i++) {
+            while (managedArray.length > targetArray.length) {
                 changed = true
-                managedArray.delete(i)
+                managedArray.delete(targetArray.length)
             }
 
             break
