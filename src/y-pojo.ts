@@ -135,7 +135,8 @@ export function syncronize(
                         changed = true
                 } else if (managedType == "YMap" || managedType == "YArray") {
                     // they match in types, so go deeper
-                    changed ||= syncronize(managedChild, targetChild)
+                    const childChanged = syncronize(managedChild, targetChild)
+                    changed ||= childChanged
                 } else {
                     // they are not complex types so just assign it into the map
                     if (managedChild !== targetChild) {

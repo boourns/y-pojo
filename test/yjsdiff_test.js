@@ -351,7 +351,7 @@ describe("syncronize", () => {
     })
 
     it("clears a long array properly", () => {
-        const start = {"arr": ["a", "b", "c", "d", "e", "f", "g", "h", "i"]}//{"clips":{"default":{"length":96,"notes":[],"id":"default"},"mbnzjdg":{"length":96,"notes":[{"tick":0,"number":57,"duration":12,"velocity":100},{"tick":24,"number":57,"duration":6,"velocity":100},{"tick":36,"number":59,"duration":6,"velocity":100},{"tick":42,"number":57,"duration":18,"velocity":100},{"tick":66,"number":57,"duration":6,"velocity":100},{"tick":84,"number":57,"duration":12,"velocity":100}],"id":"mbnzjdg"}}}
+        const start = {"arr": ["a", "b", "c", "d", "e", "f", "g", "h", "i"]}//{"clips":{"default":{"length":96,"notes":[],"id":"default"},"mbnzjdg":{"length":96,"notes":[{"tick":0,"number":57,"duratio
         const target = {"arr": []}
 
         const doc = new Y.Doc()
@@ -361,6 +361,21 @@ describe("syncronize", () => {
         deepStrictEqual(root.toJSON(), start)
 
         syncronize(root, target)
+        deepStrictEqual(root.toJSON(), target)
+    })
+
+    it("syncronizes a deep complex object", () => {
+        const start =  {"params":{"paramState":{"parameterValues":{"cutoff":{"value":64},"res":{"value":0}}}},"definition":{"controlGroups":[{"label":"Controls","controls":[{"label":"Cutoff","id":"cutoff"},{"label":"Res","id":"res"}]}]}}
+        const target = {"params":{"paramState":{"parameterValues":{"cutoff":{"value":64},"res":{"value":0},"cc55":{"value":100}}}},"definition":{"controlGroups":[{"label":"Controls","controls":[{"label":"Cutoff","id":"cutoff"},{"label":"Res","id":"res"},{"id":"cc55","label":"CC55"}]}]}}
+
+        const doc = new Y.Doc()
+        const root = doc.getMap("root")
+
+        syncronize(root, start)
+        deepStrictEqual(root.toJSON(), start)
+
+        syncronize(root, target)
+        
         deepStrictEqual(root.toJSON(), target)
     })
     

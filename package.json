@@ -1,6 +1,6 @@
 {
   "name": "y-pojo",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "Syncronize a YJS document to/from a plain old javascript object",
   "main": "dist/y-pojo.js",
   "types": "dist/y-pojo.d.ts",
