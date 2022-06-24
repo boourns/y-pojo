@@ -351,7 +351,7 @@ describe("syncronize", () => {
     })
 
     it("clears a long array properly", () => {
-        const start = {"arr": ["a", "b", "c", "d", "e", "f", "g", "h", "i"]}//{"clips":{"default":{"length":96,"notes":[],"id":"default"},"mbnzjdg":{"length":96,"notes":[{"tick":0,"number":57,"duratio
+        const start = {"arr": ["a", "b", "c", "d", "e", "f", "g", "h", "i"]}
         const target = {"arr": []}
 
         const doc = new Y.Doc()
